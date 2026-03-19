@@ -34,3 +34,15 @@ export const DELIVERY_LABELS: Record<string, string> = {
   EMOTIONAL: "Emotional",
   HUMOROUS: "Humorous",
 };
+
+export const ASPECT_RATIO_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  "9:16": { width: 1080, height: 1920 },
+  "1:1": { width: 1080, height: 1080 },
+  "16:9": { width: 1920, height: 1080 },
+  "4:5": { width: 1080, height: 1350 },
+};
+
+export const OUTPUT_FORMAT_LABELS: Record<string, string> = {
+  VIDEO: "Video",
+  IMAGE: "Image",
+};

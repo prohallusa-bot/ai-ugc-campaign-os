@@ -174,6 +174,11 @@ enum CreativeType {
   SCRIPT_TEMPLATE
 }
 
+enum OutputFormat {
+  VIDEO
+  IMAGE
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model User {
@@ -207,17 +212,17 @@ model Offer {
 }
 
 model Persona {
-  id                    String   @id @default(cuid())
-  offerId               String   @map("offer_id")
-  name                  String
-  demographicJson       Json     @map("demographic_json")
-  psychographicJson     Json     @map("psychographic_json")
-  painJson              Json     @map("pain_json")
-  failedAlternativesJson Json   @map("failed_alternatives_json")
-  transformationJson    Json     @map("transformation_json")
-  version               Int      @default(1)
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
+  id                     String   @id @default(cuid())
+  offerId                String   @map("offer_id")
+  name                   String
+  demographicJson        Json     @map("demographic_json")
+  psychographicJson      Json     @map("psychographic_json")
+  painJson               Json     @map("pain_json")
+  failedAlternativesJson Json     @map("failed_alternatives_json")
+  transformationJson     Json     @map("transformation_json")
+  version                Int      @default(1)
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
 
   offer   Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
   scripts Script[]
@@ -242,8 +247,8 @@ model Script {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  offer            Offer            @relation(fields: [offerId], references: [id], onDelete: Cascade)
-  persona          Persona          @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  offer            Offer             @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  persona          Persona           @relation(fields: [personaId], references: [id], onDelete: Cascade)
   checklists       ScriptChecklist[]
   variationBatches VariationBatch[]
 
@@ -281,18 +286,21 @@ model VariationBatch {
 }
 
 model Variation {
-  id               String          @id @default(cuid())
-  batchId          String          @map("batch_id")
-  hookType         HookType        @map("hook_type")
-  avatarType       AvatarType      @map("avatar_type")
-  lengthType       LengthType      @map("length_type")
+  id               String           @id @default(cuid())
+  batchId          String           @map("batch_id")
+  hookType         HookType         @map("hook_type")
+  avatarType       AvatarType       @map("avatar_type")
+  lengthType       LengthType       @map("length_type")
   deliveryRegister DeliveryRegister @map("delivery_register")
   platform         Platform
-  status           VariationStatus @default(PENDING)
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime        @updatedAt @map("updated_at")
+  outputFormat     OutputFormat     @default(VIDEO) @map("output_format")
+  width            Int              @default(1080)
+  height           Int              @default(1920)
+  status           VariationStatus  @default(PENDING)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
 
-  batch                VariationBatch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  batch                VariationBatch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
   voiceJobs            VoiceJob[]
   videoJobs            VideoJob[]
   creativeLibraryItems CreativeLibrary[]
@@ -363,9 +371,9 @@ model ScheduledPost {
   createdAt     DateTime   @default(now()) @map("created_at")
   updatedAt     DateTime   @updatedAt @map("updated_at")
 
-  videoJob           VideoJob            @relation(fields: [videoJobId], references: [id], onDelete: Cascade)
-  account            Account             @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  performanceMetric  PerformanceMetric?
+  videoJob          VideoJob           @relation(fields: [videoJobId], references: [id], onDelete: Cascade)
+  account           Account            @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  performanceMetric PerformanceMetric?
 
   @@index([accountId])
   @@index([scheduledTime])
@@ -374,18 +382,18 @@ model ScheduledPost {
 }
 
 model PerformanceMetric {
-  id               String   @id @default(cuid())
-  scheduledPostId  String   @unique @map("scheduled_post_id")
-  views48h         Int      @default(0) @map("views_48h")
-  views7d          Int      @default(0) @map("views_7d")
-  watchThrough7d   Decimal  @default(0) @map("watch_through_7d") @db.Decimal(5, 4)
-  saveRate7d       Decimal  @default(0) @map("save_rate_7d") @db.Decimal(5, 4)
-  ctr7d            Decimal  @default(0) @map("ctr_7d") @db.Decimal(5, 4)
-  clicks           Int      @default(0)
-  purchases        Int      @default(0)
-  revenue          Decimal  @default(0) @db.Decimal(12, 2)
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(cuid())
+  scheduledPostId String   @unique @map("scheduled_post_id")
+  views48h        Int      @default(0) @map("views_48h")
+  views7d         Int      @default(0) @map("views_7d")
+  watchThrough7d  Decimal  @default(0) @map("watch_through_7d") @db.Decimal(5, 4)
+  saveRate7d      Decimal  @default(0) @map("save_rate_7d") @db.Decimal(5, 4)
+  ctr7d           Decimal  @default(0) @map("ctr_7d") @db.Decimal(5, 4)
+  clicks          Int      @default(0)
+  purchases       Int      @default(0)
+  revenue         Decimal  @default(0) @db.Decimal(12, 2)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   scheduledPost ScheduledPost @relation(fields: [scheduledPostId], references: [id], onDelete: Cascade)
 
@@ -393,29 +401,29 @@ model PerformanceMetric {
 }
 
 model WeeklyReview {
-  id                String   @id @default(cuid())
-  weekStart         DateTime @unique @map("week_start")
-  summary           String   @db.Text
-  topPatternsJson   Json     @map("top_patterns_json")
-  weakPatternsJson  Json     @map("weak_patterns_json")
-  nextActionsJson   Json     @map("next_actions_json")
-  createdAt         DateTime @default(now()) @map("created_at")
+  id               String   @id @default(cuid())
+  weekStart        DateTime @unique @map("week_start")
+  summary          String   @db.Text
+  topPatternsJson  Json     @map("top_patterns_json")
+  weakPatternsJson Json     @map("weak_patterns_json")
+  nextActionsJson  Json     @map("next_actions_json")
+  createdAt        DateTime @default(now()) @map("created_at")
 
   @@map("weekly_reviews")
 }
 
 model Integration {
-  id               String              @id @default(cuid())
-  name             String
-  provider         IntegrationProvider @unique
-  apiKeyEncrypted  String              @map("api_key_encrypted") @db.Text
-  baseUrl          String?             @map("base_url")
-  isEnabled        Boolean             @default(true) @map("is_enabled")
-  status           IntegrationStatus   @default(DISCONNECTED)
-  lastTestedAt     DateTime?           @map("last_tested_at")
-  lastError        String?             @map("last_error") @db.Text
-  createdAt        DateTime            @default(now()) @map("created_at")
-  updatedAt        DateTime            @updatedAt @map("updated_at")
+  id              String              @id @default(cuid())
+  name            String
+  provider        IntegrationProvider @unique
+  apiKeyEncrypted String              @map("api_key_encrypted") @db.Text
+  baseUrl         String?             @map("base_url")
+  isEnabled       Boolean             @default(true) @map("is_enabled")
+  status          IntegrationStatus   @default(DISCONNECTED)
+  lastTestedAt    DateTime?           @map("last_tested_at")
+  lastError       String?             @map("last_error") @db.Text
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
 
   @@map("integrations")
 }
@@ -478,29 +486,29 @@ model CampaignPreset {
 }
 
 model WeeklyTarget {
-  id          String             @id @default(cuid())
-  weekStart   DateTime           @unique @map("week_start")
-  videoGoal   Int                @map("video_goal")
-  postGoal    Int                @map("post_goal")
-  scriptGoal  Int                @map("script_goal")
-  renderGoal  Int                @map("render_goal")
-  status      WeeklyTargetStatus @default(PLANNED)
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
+  id         String             @id @default(cuid())
+  weekStart  DateTime           @unique @map("week_start")
+  videoGoal  Int                @map("video_goal")
+  postGoal   Int                @map("post_goal")
+  scriptGoal Int                @map("script_goal")
+  renderGoal Int                @map("render_goal")
+  status     WeeklyTargetStatus @default(PLANNED)
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
 
   @@map("weekly_targets")
 }
 
 model WorkflowRun {
-  id               String         @id @default(cuid())
-  name             String
-  weekStart        DateTime       @map("week_start")
-  status           WorkflowStatus @default(PLANNED)
-  videosTarget     Int            @map("videos_target")
-  videosCompleted  Int            @default(0) @map("videos_completed")
-  notes            String?        @db.Text
-  createdAt        DateTime       @default(now()) @map("created_at")
-  updatedAt        DateTime       @updatedAt @map("updated_at")
+  id              String         @id @default(cuid())
+  name            String
+  weekStart       DateTime       @map("week_start")
+  status          WorkflowStatus @default(PLANNED)
+  videosTarget    Int            @map("videos_target")
+  videosCompleted Int            @default(0) @map("videos_completed")
+  notes           String?        @db.Text
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
 
   @@index([weekStart])
   @@map("workflow_runs")
@@ -529,19 +537,19 @@ model GlobalSettings {
 }
 
 model ApprovalSettings {
-  id                   String   @id @default(cuid())
-  workspaceId          String   @unique @default("default") @map("workspace_id")
-  personaApproval      Boolean  @default(false) @map("persona_approval")
-  scriptApproval       Boolean  @default(true) @map("script_approval")
-  hookApproval         Boolean  @default(false) @map("hook_approval")
-  voiceApproval        Boolean  @default(false) @map("voice_approval")
-  videoApproval        Boolean  @default(true) @map("video_approval")
-  scheduleApproval     Boolean  @default(false) @map("schedule_approval")
-  weeklyBriefApproval  Boolean  @default(false) @map("weekly_brief_approval")
-  autoApproveLowRisk   Boolean  @default(true) @map("auto_approve_low_risk")
-  confidenceThreshold  Float    @default(0.8) @map("confidence_threshold")
-  createdAt            DateTime @default(now()) @map("created_at")
-  updatedAt            DateTime @updatedAt @map("updated_at")
+  id                  String   @id @default(cuid())
+  workspaceId         String   @unique @default("default") @map("workspace_id")
+  personaApproval     Boolean  @default(false) @map("persona_approval")
+  scriptApproval      Boolean  @default(true) @map("script_approval")
+  hookApproval        Boolean  @default(false) @map("hook_approval")
+  voiceApproval       Boolean  @default(false) @map("voice_approval")
+  videoApproval       Boolean  @default(true) @map("video_approval")
+  scheduleApproval    Boolean  @default(false) @map("schedule_approval")
+  weeklyBriefApproval Boolean  @default(false) @map("weekly_brief_approval")
+  autoApproveLowRisk  Boolean  @default(true) @map("auto_approve_low_risk")
+  confidenceThreshold Float    @default(0.8) @map("confidence_threshold")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   @@map("approval_settings")
 }
@@ -562,18 +570,18 @@ model PlatformRule {
 }
 
 model CostControl {
-  id                String   @id @default(cuid())
-  workspaceId       String   @unique @default("default") @map("workspace_id")
-  dailySpendCap     Decimal? @map("daily_spend_cap") @db.Decimal(10, 2)
-  weeklySpendCap    Decimal? @map("weekly_spend_cap") @db.Decimal(10, 2)
-  pauseOnThreshold  Boolean  @default(false) @map("pause_on_threshold")
-  warnOnCacBreak    Boolean  @default(true) @map("warn_on_cac_break")
-  costPerScript     Decimal? @map("cost_per_script") @db.Decimal(8, 4)
-  costPerVoice      Decimal? @map("cost_per_voice") @db.Decimal(8, 4)
-  costPerVideo      Decimal? @map("cost_per_video") @db.Decimal(8, 4)
-  costPerPost       Decimal? @map("cost_per_post") @db.Decimal(8, 4)
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(cuid())
+  workspaceId      String   @unique @default("default") @map("workspace_id")
+  dailySpendCap    Decimal? @map("daily_spend_cap") @db.Decimal(10, 2)
+  weeklySpendCap   Decimal? @map("weekly_spend_cap") @db.Decimal(10, 2)
+  pauseOnThreshold Boolean  @default(false) @map("pause_on_threshold")
+  warnOnCacBreak   Boolean  @default(true) @map("warn_on_cac_break")
+  costPerScript    Decimal? @map("cost_per_script") @db.Decimal(8, 4)
+  costPerVoice     Decimal? @map("cost_per_voice") @db.Decimal(8, 4)
+  costPerVideo     Decimal? @map("cost_per_video") @db.Decimal(8, 4)
+  costPerPost      Decimal? @map("cost_per_post") @db.Decimal(8, 4)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("cost_controls")
 }
@@ -594,19 +602,37 @@ model AuditLog {
 }
 
 model CreativeLibrary {
-  id               String       @id @default(cuid())
-  name             String
-  type             CreativeType
-  content          String       @db.Text
-  tags             Json         @default("[]")
-  isWinner         Boolean      @default(false) @map("is_winner")
-  sourceVariationId String?     @map("source_variation_id")
-  performanceScore Float?       @map("performance_score")
-  createdAt        DateTime     @default(now()) @map("created_at")
-  updatedAt        DateTime     @updatedAt @map("updated_at")
+  id                String       @id @default(cuid())
+  name              String
+  type              CreativeType
+  content           String       @db.Text
+  tags              Json         @default("[]")
+  isWinner          Boolean      @default(false) @map("is_winner")
+  sourceVariationId String?      @map("source_variation_id")
+  performanceScore  Float?       @map("performance_score")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
 
   sourceVariation Variation? @relation(fields: [sourceVariationId], references: [id], onDelete: SetNull)
 
   @@index([type, isWinner])
   @@map("creative_library")
+}
+
+model AdapterConfig {
+  id                      String               @id @default(cuid())
+  workspaceId             String               @unique @default("default") @map("workspace_id")
+  aiProvider              IntegrationProvider? @map("ai_provider")
+  voiceProvider           IntegrationProvider? @map("voice_provider")
+  videoProvider           IntegrationProvider? @map("video_provider")
+  storageProvider         IntegrationProvider? @map("storage_provider")
+  socialTiktokProvider    IntegrationProvider? @map("social_tiktok_provider")
+  socialInstagramProvider IntegrationProvider? @map("social_instagram_provider")
+  socialYoutubeProvider   IntegrationProvider? @map("social_youtube_provider")
+  socialFacebookProvider  IntegrationProvider? @map("social_facebook_provider")
+  fallbackToMock          Boolean              @default(true) @map("fallback_to_mock")
+  createdAt               DateTime             @default(now()) @map("created_at")
+  updatedAt               DateTime             @updatedAt @map("updated_at")
+
+  @@map("adapter_configs")
 }
