@@ -2,6 +2,7 @@ export * from "./offer";
 export * from "./persona";
 export * from "./script";
 export * from "./variation";
+export * from "./variation-batch";
 export * from "./account";
 export * from "./integration";
 export * from "./prompt-template";
