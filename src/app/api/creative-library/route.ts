@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { apiHandler, parsePagination } from "@/lib/api-handler";
 import { creativeLibraryService } from "@/services";
-
-const createCreativeSchema = z.object({
-  name: z.string().min(1),
-  type: z.enum(["HOOK", "CTA", "AVATAR_REF", "VOICE_SAMPLE", "CONCEPT", "SCRIPT_TEMPLATE"]),
-  content: z.string().min(1),
-  tags: z.array(z.string()).optional().default([]),
-  isWinner: z.boolean().optional().default(false),
-});
+import { createCreativeLibrarySchema } from "@/lib/validators";
 
 export const GET = apiHandler(async (req) => {
   const pagination = parsePagination(req);
@@ -19,7 +11,7 @@ export const GET = apiHandler(async (req) => {
 
 export const POST = apiHandler(async (req) => {
   const body = await req.json();
-  const validated = createCreativeSchema.parse(body);
+  const validated = createCreativeLibrarySchema.parse(body);
   const result = await creativeLibraryService.create(validated);
   return NextResponse.json({ success: true, data: result }, { status: 201 });
 });
