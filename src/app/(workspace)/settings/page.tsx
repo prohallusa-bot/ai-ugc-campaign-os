@@ -152,7 +152,8 @@ export default function SettingsPage() {
 
     fetchData();
     return () => controller.abort();
-  }, [activeTab, global, production, approval, costControl]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   async function saveSettings(url: string, data: unknown) {
     setSaving(true);

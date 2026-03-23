@@ -28,12 +28,10 @@ export const integrationService = {
   },
 
   async update(id: string, input: Record<string, unknown>) {
-    await this.getById(id);
     return prisma.integration.update({ where: { id }, data: input as any });
   },
 
   async delete(id: string) {
-    await this.getById(id);
     return prisma.integration.delete({ where: { id } });
   },
 
@@ -42,7 +40,6 @@ export const integrationService = {
   },
 
   async updateStatus(id: string, status: string, lastError?: string) {
-    await this.getById(id);
     return prisma.integration.update({
       where: { id },
       data: {
@@ -53,7 +50,6 @@ export const integrationService = {
   },
 
   async testConnection(id: string) {
-    await this.getById(id);
     return prisma.integration.update({
       where: { id },
       data: { lastTestedAt: new Date() },

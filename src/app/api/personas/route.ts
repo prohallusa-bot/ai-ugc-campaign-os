@@ -5,7 +5,11 @@ import { createPersonaSchema } from "@/lib/validators";
 
 export const GET = apiHandler(async (req) => {
   const pagination = parsePagination(req);
-  const result = await personaService.list(pagination);
+  const url = new URL(req.url);
+  const offerId = url.searchParams.get("offerId");
+  const result = offerId
+    ? await personaService.listByOffer(offerId, pagination)
+    : await personaService.list(pagination);
   return NextResponse.json({ success: true, data: result });
 });
 

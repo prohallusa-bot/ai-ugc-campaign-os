@@ -21,20 +21,10 @@ export const PATCH = apiHandler(async (req) => {
   const body = await req.json();
   const validated = updateGlobalSettingsSchema.parse(body);
 
-  // Ensure record exists
-  const existing = await prisma.globalSettings.findUnique({
+  const result = await prisma.globalSettings.upsert({
     where: { workspaceId: "default" },
-  });
-
-  if (!existing) {
-    await prisma.globalSettings.create({
-      data: { workspaceId: "default" },
-    });
-  }
-
-  const result = await prisma.globalSettings.update({
-    where: { workspaceId: "default" },
-    data: validated,
+    create: { ...validated, workspaceId: "default" },
+    update: validated,
   });
 
   return NextResponse.json({ success: true, data: result });

@@ -21,19 +21,10 @@ export const PATCH = apiHandler(async (req) => {
   const body = await req.json();
   const validated = updateApprovalSettingsSchema.parse(body);
 
-  const existing = await prisma.approvalSettings.findUnique({
+  const result = await prisma.approvalSettings.upsert({
     where: { workspaceId: "default" },
-  });
-
-  if (!existing) {
-    await prisma.approvalSettings.create({
-      data: { workspaceId: "default" },
-    });
-  }
-
-  const result = await prisma.approvalSettings.update({
-    where: { workspaceId: "default" },
-    data: validated,
+    create: { ...validated, workspaceId: "default" },
+    update: validated,
   });
 
   return NextResponse.json({ success: true, data: result });

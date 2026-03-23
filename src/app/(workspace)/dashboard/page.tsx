@@ -63,7 +63,7 @@ export default function DashboardPage() {
   useEffect(() => {
     fetch("/api/dashboard/stats")
       .then((res) => res.json())
-      .then((data) => setStats(data))
+      .then((data) => setStats(data.data ?? data))
       .catch(() => setStats({ offers: 0, scripts: 0, variations: 0, accounts: 0 }))
       .finally(() => setStatsLoading(false));
 

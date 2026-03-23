@@ -28,12 +28,10 @@ export const accountService = {
   },
 
   async update(id: string, input: Record<string, unknown>) {
-    await this.getById(id);
     return prisma.account.update({ where: { id }, data: input as any });
   },
 
   async delete(id: string) {
-    await this.getById(id);
     return prisma.account.delete({ where: { id } });
   },
 
@@ -44,7 +42,6 @@ export const accountService = {
   },
 
   async updateHealth(id: string, healthStatus: string) {
-    await this.getById(id);
     return prisma.account.update({
       where: { id },
       data: { healthStatus: healthStatus as any },

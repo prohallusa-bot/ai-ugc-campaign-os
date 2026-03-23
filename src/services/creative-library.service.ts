@@ -28,29 +28,29 @@ export const creativeLibraryService = {
   },
 
   async update(id: string, input: Record<string, unknown>) {
-    await this.getById(id);
     return prisma.creativeLibrary.update({ where: { id }, data: input as any });
   },
 
   async delete(id: string) {
-    await this.getById(id);
     return prisma.creativeLibrary.delete({ where: { id } });
   },
 
-  async listWinners(type?: string) {
+  async listWinners(type?: string, limit = 100) {
     return prisma.creativeLibrary.findMany({
       where: {
         isWinner: true,
         ...(type !== undefined && { type: type as any }),
       },
       orderBy: { createdAt: "desc" },
+      take: limit,
     });
   },
 
-  async listByType(type: string) {
+  async listByType(type: string, limit = 100) {
     return prisma.creativeLibrary.findMany({
       where: { type: type as any },
       orderBy: { createdAt: "desc" },
+      take: limit,
     });
   },
 };

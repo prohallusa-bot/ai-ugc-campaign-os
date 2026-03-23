@@ -21,19 +21,10 @@ export const PATCH = apiHandler(async (req) => {
   const body = await req.json();
   const validated = updateProductionRuleSchema.parse(body);
 
-  const existing = await prisma.productionRule.findUnique({
+  const result = await prisma.productionRule.upsert({
     where: { workspaceId: "default" },
-  });
-
-  if (!existing) {
-    await prisma.productionRule.create({
-      data: { workspaceId: "default" },
-    });
-  }
-
-  const result = await prisma.productionRule.update({
-    where: { workspaceId: "default" },
-    data: validated,
+    create: { ...validated, workspaceId: "default" },
+    update: validated,
   });
 
   return NextResponse.json({ success: true, data: result });

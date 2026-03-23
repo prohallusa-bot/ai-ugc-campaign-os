@@ -28,12 +28,10 @@ export const variationService = {
   },
 
   async update(id: string, input: Record<string, unknown>) {
-    await this.getById(id);
     return prisma.variation.update({ where: { id }, data: input as any });
   },
 
   async delete(id: string) {
-    await this.getById(id);
     return prisma.variation.delete({ where: { id } });
   },
 
@@ -53,7 +51,6 @@ export const variationService = {
   },
 
   async updateStatus(id: string, status: string) {
-    await this.getById(id);
     return prisma.variation.update({ where: { id }, data: { status: status as any } });
   },
 };

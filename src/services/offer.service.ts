@@ -28,12 +28,10 @@ export const offerService = {
   },
 
   async update(id: string, input: Record<string, unknown>) {
-    await this.getById(id);
     return prisma.offer.update({ where: { id }, data: input as any });
   },
 
   async delete(id: string) {
-    await this.getById(id);
     return prisma.offer.delete({ where: { id } });
   },
 

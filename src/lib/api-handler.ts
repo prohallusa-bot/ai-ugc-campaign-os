@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AppError } from "@/lib/errors";
 import { ZodError } from "zod";
+import { Prisma } from "@prisma/client";
 
 export function apiHandler(
   fn: (
@@ -22,6 +23,18 @@ export function apiHandler(
             error: { code: error.code, message: error.message },
           },
           { status: error.statusCode }
+        );
+      }
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: { code: "NOT_FOUND", message: "Record not found" },
+          },
+          { status: 404 }
         );
       }
       if (error instanceof ZodError) {

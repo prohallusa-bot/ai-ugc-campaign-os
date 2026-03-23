@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default async function middleware(request: NextRequest) {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+let clerkMiddlewareHandler: ((req: NextRequest, evt: any) => Promise<NextResponse>) | null = null;
 
-  // Skip Clerk middleware if no valid key is configured
-  if (!publishableKey || !publishableKey.startsWith("pk_")) {
-    return NextResponse.next();
-  }
+async function getClerkHandler() {
+  if (clerkMiddlewareHandler) return clerkMiddlewareHandler;
 
   const { clerkMiddleware, createRouteMatcher } = await import(
     "@clerk/nextjs/server"
@@ -19,11 +16,25 @@ export default async function middleware(request: NextRequest) {
     "/api/webhooks(.*)",
   ]);
 
-  return clerkMiddleware(async (auth, req) => {
+  clerkMiddlewareHandler = clerkMiddleware(async (auth, req) => {
     if (!isPublicRoute(req)) {
       await auth.protect();
     }
-  })(request, {} as any);
+  }) as any;
+
+  return clerkMiddlewareHandler!;
+}
+
+export default async function middleware(request: NextRequest) {
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  // Skip Clerk middleware if no valid key is configured
+  if (!publishableKey || !publishableKey.startsWith("pk_")) {
+    return NextResponse.next();
+  }
+
+  const handler = await getClerkHandler();
+  return handler(request, {} as any);
 }
 
 export const config = {
